@@ -1,0 +1,98 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SKOL Strength — Workout Dashboard</title><style>
+:root{color-scheme:dark;--bg:#11101a;--panel:#211d30;--muted:#bbb4cb;--purple:#9b7af7;--gold:#f6d16a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f6f3ff;font:16px system-ui,-apple-system,sans-serif}.wrap{max-width:620px;margin:auto;padding:18px 14px 60px}h1{font-size:27px;margin:4px 0}p{line-height:1.4}.sub,.small{color:var(--muted);font-size:13px}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:22px 0 16px}button{cursor:pointer;font:inherit;border:0;border-radius:12px;padding:12px 7px;background:#393249;color:#fff;font-weight:700}.tabs button.active{background:var(--purple);color:#140e21}.card{background:var(--panel);border:1px solid #39314a;border-radius:16px;padding:15px;margin:12px 0}.head{display:flex;justify-content:space-between;align-items:center;gap:10px}.number{color:var(--gold);font-size:13px;font-weight:800}.exercise{font-weight:750;font-size:18px;margin:4px 0}.target{color:var(--gold);font-size:14px;margin:7px 0 11px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}input,textarea{width:100%;border-radius:10px;background:#13101c;border:1px solid #51475f;color:#fff;padding:12px;font:16px system-ui}textarea{min-height:70px;resize:vertical}.primary{background:var(--gold);color:#1c1726;width:100%;margin-top:10px}.secondary{background:#413651;width:100%;margin-top:9px}.exercise-note{margin-top:12px}.exercise-note textarea{min-height:54px}.hint{font-size:12px;color:#bcb4cd;margin-top:8px}.footer{margin-top:22px}.warning{border-left:3px solid var(--gold);padding-left:12px;color:#ded5e8;font-size:13px}.pill{font-size:12px;background:#372d4c;border-radius:20px;padding:6px 10px;color:#e3d5ff}a{color:var(--gold)}
+</style></head><body><main class="wrap"><div class="head"><div><div class="small">YOUR 5:15 AM GYM COMPANION</div><h1>💜 SKOL Strength 💛</h1></div><span class="pill">8 + optional core</span></div><p class="sub">Eight exercises per day, plus optional core. Monday includes suitcase holds; Friday prioritizes shoulders and traps. Tap a day, see your targets, and log your sets. Entries save by date on this device. Back up your history before changing phones or clearing Chrome data.</p><nav class="tabs" id="tabs"></nav><section class="card"><div class="fields"><div><label for="sessionDate">Workout date</label><input id="sessionDate" type="date"></div><div><label for="savedDates">Saved sessions</label><select id="savedDates" style="width:100%;padding:12px;border-radius:10px;background:#13101c;color:#fff;border:1px solid #51475f;font-size:16px"></select></div></div><div class="hint">Each date is a separate permanent session. Choose a date to review or edit it.</div></section><section id="workout"></section><section class="card footer"><h3 style="margin:0 0 10px">Session notes</h3><div class="fields"><div><label for="walk">Walk (minutes)</label><input id="walk" type="number" min="0" placeholder="15"></div><div><label for="joint">Hip / shoulder response</label><input id="joint" placeholder="No pain"></div></div><div style="margin-top:10px"><label for="notes">Other notes</label><textarea id="notes" placeholder="Energy, recovery, substitutions..."></textarea></div><button class="primary" id="copy">Copy today's log</button><button class="secondary" id="download">Download this session (.txt)</button><button class="primary" id="backup">Backup ALL workouts (.json)</button><label for="restore" style="margin-top:14px">Restore workout backup (.json)</label><input type="file" id="restore" accept=".json,application/json"><div class="hint">Restoring merges sessions by date; any matching sessions in the imported backup replace those dates. Your backup stays on your phone until you save it elsewhere.</div><div class="hint" id="status">Your entries save automatically. Download ALL workouts regularly for safekeeping.</div></section><p class="warning">Targets are provisional and based on your recorded gym results. Stop movements that provoke pain. With severe hip osteoarthritis and shoulder symptoms, confirm appropriate loading and exercise selection with your physiotherapist. This is not a max-effort program.</p></main>
+<script>
+const plan={
+Monday:{title:"Chest + Triceps",detail:"8 planned exercises + optional Pallof press. Updated after Oct 26: prioritize shoulder-friendly technique, consistent reps, and recovery.",ex:[
+["Neutral-grip dumbbell bench press","65 lb each","3 × 10–12","Start at 65 lb each as requested; use strict, pain-free reps. Reduce load if needed to keep form."],
+["Low-to-high cable chest fly","50 lb","3 × 12","Added a third set. Keep the stretch and controlled squeeze."],
+["Low-to-high underhand cable press","50 lb","3 × 12","Added a third set; stay at this effective weight."],
+["Neutral-grip chest press machine","115 lb","3 × 12","115 lb felt strong Oct 26. Add a third set if form and recovery hold up."],
+["High-to-low cable chest fly","45 lb","2 × 12","Prioritize timing and consistent technique before increasing load."],
+["Rope triceps pushdown","100 lb","3 × 12","Keep elbows stable and controlled reps."],
+["Single-arm behind-the-back cable triceps raise","20 lb or lighter","2 × 10–12 / arm","Start with right arm; match left to right reps. Adjust for fatigue and maintain pain-free form."],
+["Single-arm standing suitcase hold","95 lb if stable","3 × 30 sec / hand","Replaces Monday lateral raises. Stay upright without leaning; use a lighter load if grip, hip, or posture shifts."]],core:["Pallof press","50 lb if controlled","2 × 10–12 / side","Optional anti-rotation core. Keep hips steady and avoid twisting."]},
+Tuesday:{title:"Back + Biceps",detail:"8 planned exercises + optional core. Keep row and pulldown as anchor lifts.",ex:[
+["Seated cable row","145–155 lb","3 × 10–12","145 × 10 previously easy; strict form."],
+["Medium-grip lat pulldown","180–200 lb","3 × 8–10","Medium grip preferred; control each rep."],
+["Single-arm cable high row","45–50 lb","3 × 12 / arm","45 × 15 felt easy."],
+["Reverse pec deck (single arm)","90 lb","3 × 12–15","Side-facing setup that felt great."],
+["Straight-arm cable pulldown","Find comfortable weight","2 × 12–15","Start light; avoid shoulder irritation."],
+["Supported cable curl","40 lb per hand","3 × 12–15","Controlled reps; previous 40 × 15 felt great."],
+["Rope hammer curl","Find pain-free weight","2 × 12","Avoid the shoulder discomfort you had with heavy dumbbell hammer curls."],
+["Single-arm cable row (alternate angle)","Find comfortable weight","2 × 12 / arm","Optional angle variation; avoid redundant junk volume."]],core:["Dead bug","Bodyweight","2 × 8 / side","Optional; maintain neutral spine and easy breathing."]},
+Thursday:{title:"Legs + Glutes",detail:"8 planned exercises + optional core. Hip prehab takes priority; follow physiotherapist guidance.",ex:[
+["Conventional deadlift","Submaximal, physio-approved","3 working sets","No max singles; keep reps and load controlled."],
+["Leg press","Comfortable range; previously 360–450 lb","3 × 10–12","Avoid painful hip depth; use controlled reps."],
+["Seated hamstring curl","Machine-dependent","3 × 10–12","You used two different machines at 160 and 205 lb."],
+["Glute bridge / hip thrust","Establish baseline","3 × 8–12","Prioritize glutes; no forced hip range."],
+["Cable glute kickback","60 lb starting point","2 × 12 / leg","Control the pelvis."],
+["Calf raises","Comfortable load","3 × 12–15","Can pair with leg press if comfortable."],
+["Hip abduction machine","Start light","2 × 12–15","Only if approved and hip tolerates it."],
+["Supported step-up or leg extension","Physio-approved choice","2 × 10–12","Choose the version your hip tolerates; skip if painful."]],core:["Pallof press","Light resistance","2 × 10 / side","Optional anti-rotation core."]},
+Friday:{title:"Boulder Shoulders + Traps",detail:"8 planned exercises + optional core. Shoulder/trap priority. V raise + reverse fly are chest-supported on a 45° incline bench; avoid unsupported hip hinging. New movements start light and pain-free.",ex:[
+["Landmine press","45 lb","3 × 10","Proven comfortable. Keep a controlled, pain-free path."],
+["Cable lateral raise","40 lb","3 × 12","Keep strict control; your preferred working weight."],
+["Chest-supported 45° incline dumbbell V raise","Light dumbbells — establish baseline","2 × 10–12","Chest rests on the 45° bench. Superset with chest-supported reverse fly; no unsupported forward bend."],
+["Chest-supported 45° incline dumbbell reverse fly","Light dumbbells — establish baseline","2 × 10–12","Superset with V raise. Chest supported; stop before form breaks."],
+["Dumbbell shrugs","Establish comfortable weight","3 × 12–15","Upper traps. Brief pause at top; avoid shoulder rolling or neck strain."],
+["Seated rotating dumbbell front raise","Very light dumbbells — establish baseline","2 × 10–12","From waist, raise/press forward to just above chest height, tilting dumbbells inward toward belly button. Descriptive name; no forced rotation. Skip if rotator cuff irritated."],
+["Supported cable curl","45 lb per hand","3 × 12–15","45 lb × 15 felt great on Oct 23; maintain control."],
+["Rope triceps pushdown","100 lb","3 × 12–15","100 lb for 15,15,12 on Oct 23; controlled reps."]],core:["Cable crunch","Comfortable controlled resistance","2 × 12–15","Optional core. Suitcase holds can replace this as a grip/core finisher if hip feels stable."]}
+};
+const days=["Monday","Tuesday","Thursday","Friday"];
+const exercisesFor=(d,s)=>{const p=plan[d];const arr=[...p.ex];if(s&&s.ex){for(const name of Object.keys(s.ex)){if(!arr.some(e=>e[0]===name))arr.push([name,"Historical exercise","Logged on this date","Preserved from your earlier session; not part of the current eight-exercise plan."]);}}return arr;};
+const STORE="skol-v2-sessions"; // Keep original storage key so existing workout history survives deployments.
+const MONDAY_DATE="2026-10-19";
+const mondayRecovered={
+  "Neutral-grip dumbbell bench press":{w:"35, 45, 50 lb each",r:"12, 12, 12",c:"Pain-free; top set 50 lb each × 12."},
+  "Low-to-high cable chest fly":{w:"50 lb",r:"3 × 12"},
+  "Low-to-high underhand cable press":{w:"50 lb",r:"3 × 12"},
+  "Rope triceps pushdown":{w:"100 lb",r:"3 × 12"},
+  "Cable lateral raise (optional)":{w:"40 lb",r:"3 × 12"},
+  "High-to-low cable chest fly":{w:"40, 50, 50 lb",r:"12, 12, 12",c:"Superset with high-to-low cable press."},
+  "High-to-low cable press":{w:"40, 50, 50 lb",r:"12, 12, 12",c:"Superset with high-to-low cable fly."},
+  "Neutral-grip chest press machine":{w:"105 lb",r:"3 × 12",c:"Great stretch, controlled; no shoulder pain."},
+  "Single-arm behind-the-back cable triceps raise":{w:"30, 25, 25 lb",r:"10, 12, 12",c:"Shoulder felt outstanding."}
+};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll('"',"&quot;");
+const isoToday=()=>{let d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+const parse=x=>{try{return JSON.parse(x)||{}}catch{return {}}};
+let db=parse(localStorage.getItem(STORE));if(!db.sessions||typeof db.sessions!=="object")db={schema:2,sessions:{}};
+const idOf=e=>e[0].toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const k=(d,date)=>d+"|"+date;
+const recoveredKey=k("Monday",MONDAY_DATE);
+// Seed only when no existing dated record; preserve earlier saved data and user edits.
+if(!db.sessions[recoveredKey])db.sessions[recoveredKey]={day:"Monday",date:MONDAY_DATE,ex:mondayRecovered,walk:"30",joint:"No hip or shoulder pain",notes:"Great workout. Muscles tired, energy remaining; shorter rests. Extended walk instead of adding more exercises."};
+// Copy legacy per-day fields into dated records without replacing already recorded fields.
+for(const d of days){let old=parse(localStorage.getItem('skol-v1-'+d));if(!Object.keys(old).length)continue;let date=d==='Monday'?MONDAY_DATE:isoToday(),key=k(d,date);let dest=db.sessions[key]||{day:d,date,ex:{}};dest.ex=dest.ex||{};exercisesFor(d,dest).forEach((e,i)=>{let name=e[0],entry=dest.ex[name]||{};for(const [field,legacy] of [['w','w'+i],['r','r'+i],['c','c'+i]])if(old[legacy]&&!entry[field])entry[field]=old[legacy];dest.ex[name]=entry});for(const f of ['walk','joint','notes'])if(old[f]&&!dest[f])dest[f]=old[f];db.sessions[key]=dest;}
+const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify(db));$('status').textContent='Saved on this device. Download a backup regularly.'}catch(e){$('status').textContent='SAVE FAILED — storage may be full or blocked. Export a backup now.'}};
+persist();
+let day=days.includes(localStorage.getItem('skol_day'))?localStorage.getItem('skol_day'):'Monday';
+let date=day==='Monday'?MONDAY_DATE:isoToday();
+const session=()=>db.sessions[k(day,date)]||{day,date,ex:{}};
+function saveField(field,value,name){let key=k(day,date);if(!db.sessions[key])db.sessions[key]={day,date,ex:{}};let s=db.sessions[key];if(name){s.ex=s.ex||{};s.ex[name]=s.ex[name]||{};s.ex[name][field]=value}else s[field]=value;persist();refreshDates()}
+function refreshDates(){let keys=Object.values(db.sessions).filter(s=>s.day===day).map(s=>s.date).sort().reverse();if(!keys.includes(date))keys.unshift(date);$('savedDates').innerHTML=keys.map(d=>`<option value="${esc(d)}" ${d===date?'selected':''}>${esc(d)}</option>`).join('')}
+function render(){
+ $('tabs').innerHTML=days.map(d=>`<button class="${d===day?'active':''}" data-day="${d}">${d.slice(0,3)}</button>`).join('');
+ document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{day=b.dataset.day;localStorage.setItem('skol_day',day);let saved=Object.values(db.sessions).filter(s=>s.day===day).map(s=>s.date).sort().reverse();date=saved[0]||isoToday();render()});
+ $('sessionDate').value=date;refreshDates();
+ const p=plan[day],s=session();let html=`<h2 style="margin-bottom:3px">${day}: ${p.title}</h2><p class="sub">${p.detail}</p><div class="small">Saved session: ${esc(date)} · Entries stay attached to exercise names even when the order changes.</div>`;
+ exercisesFor(day,s).forEach((e,i)=>{let name=e[0],v=(s.ex||{})[name]||{};html+=`<article class="card"><div class="number">EXERCISE ${i+1}</div><div class="exercise">${esc(name)}</div><div class="target">🎯 ${esc(e[1])} · ${esc(e[2])}</div><div class="fields"><div><label>Actual weight(s)</label><input data-name="${esc(name)}" data-field="w" placeholder="e.g. 145 lb" value="${esc(v.w||'')}"></div><div><label>Actual sets × reps</label><input data-name="${esc(name)}" data-field="r" placeholder="e.g. 3 × 10" value="${esc(v.r||'')}"></div></div><div class="hint">${esc(e[3])}</div><div class="exercise-note"><label>Optional exercise comments</label><textarea data-name="${esc(name)}" data-field="c" rows="2" placeholder="Easy, tough, shoulder discomfort, form...">${esc(v.c||'')}</textarea></div></article>`});
+ if(p.core){let e=p.core,v=(s.ex||{})[e[0]]||{};html+=`<article class="card"><div class="number">OPTIONAL CORE</div><div class="exercise">${esc(e[0])}</div><div class="target">🎯 ${esc(e[1])} · ${esc(e[2])}</div><div class="fields"><div><label>Actual weight(s)</label><input data-name="${esc(e[0])}" data-field="w" value="${esc(v.w||'')}"></div><div><label>Actual sets × reps</label><input data-name="${esc(e[0])}" data-field="r" value="${esc(v.r||'')}"></div></div><div class="hint">${esc(e[3])}</div><div class="exercise-note"><label>Optional exercise comments</label><textarea data-name="${esc(e[0])}" data-field="c">${esc(v.c||'')}</textarea></div></article>`;}
+ $('workout').innerHTML=html;
+ for(const f of ['walk','joint','notes'])$(f).value=s[f]||'';
+ document.querySelectorAll('[data-name]').forEach(el=>el.addEventListener('input',()=>saveField(el.dataset.field,el.value,el.dataset.name)));
+ for(const f of ['walk','joint','notes'])$(f).oninput=e=>saveField(f,e.target.value);
+}
+$('sessionDate').onchange=e=>{if(!e.target.value)return;date=e.target.value;render()};
+$('savedDates').onchange=e=>{date=e.target.value;render()};
+function log(){let s=session(),p=plan[day];return `${day} — ${p.title}\n${date}\n\n`+[...exercisesFor(day,s),...(p.core?[p.core]:[])].map((e,i)=>{let v=(s.ex||{})[e[0]]||{};return `${i+1}. ${e[0]}\nTarget: ${e[1]}, ${e[2]}\nActual: ${v.w||'not entered'}; ${v.r||'not entered'}\nComments: ${v.c||'none'}`}).join('\n\n')+`\n\nWalk: ${s.walk||'not entered'} minutes\nHip/shoulder: ${s.joint||'not entered'}\nNotes: ${s.notes||'none'}`}
+function download(content,filename,type){let blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(log());$('status').textContent='Copied. Paste into ChatGPT.'}catch{$('status').textContent='Clipboard unavailable; use Download this session.'}};
+$('download').onclick=()=>download(log(),`SKOL-${day}-${date}.txt`,'text/plain');
+$('backup').onclick=()=>{persist();download(JSON.stringify({format:'SKOL Strength workout backup',schema:2,exportedAt:new Date().toISOString(),sessions:db.sessions},null,2),`SKOL-ALL-WORKOUTS-${isoToday()}.json`,'application/json');$('status').textContent='Backup downloaded. Save it to a safe place such as Google Drive.'};
+$('restore').onchange=async e=>{let file=e.target.files?.[0];if(!file)return;try{let obj=JSON.parse(await file.text());if(obj.schema!==2||!obj.sessions||typeof obj.sessions!=='object'||Array.isArray(obj.sessions))throw Error('Not a SKOL workout backup');let incoming=Object.entries(obj.sessions).filter(([key,s])=>s&&typeof s==='object'&&days.includes(s.day)&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)&&key===k(s.day,s.date));if(!incoming.length)throw Error('No valid workout sessions found');let overlapping=incoming.filter(([key])=>db.sessions[key]).length;if(!confirm(`Restore ${incoming.length} sessions? ${overlapping} matching dates will be replaced by the backup. Other sessions stay untouched.`))return;for(const [key,s] of incoming)db.sessions[key]=s;persist();render();$('status').textContent=`Restored ${incoming.length} sessions. Download a fresh backup.`}catch(err){$('status').textContent='Restore failed: '+err.message}finally{e.target.value=''}};
+render();
+</script></body></html>
